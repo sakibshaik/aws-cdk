@@ -33,7 +33,11 @@ exports.handler = async (event, context) => {
 }
 
 async function listQuotes(){
-    return " ";
+    const params = { TableName: MY_TABLE }
+    return await dynamo
+        .scan(params)
+        .promise()
+        .then(res => res.Items);
 }
 
 async function saveQuote(data) {
