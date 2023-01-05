@@ -36,9 +36,13 @@ export class CdkQuotesApiStack extends cdk.Stack {
     const handleIntegration = new LambdaIntegration(handlerFunction)
 
     const mainPath = api.root.addResource('quotes');
+    const idPath = mainPath.addResource('{id}');
 
     mainPath.addMethod("GET", handleIntegration);
     mainPath.addMethod("POST", handleIntegration);
+    idPath.addMethod("PUT", handleIntegration);
+    idPath.addMethod("DELETE", handleIntegration);
+    idPath.addMethod("GET", handleIntegration);
 
 
   }

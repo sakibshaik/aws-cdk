@@ -18,6 +18,15 @@ exports.handler = async (event, context) => {
             case "POST /quotes":
                 body = await saveQuote(data);
                 break;
+            case "GET /quotes/{id}":
+                body = await getQuote(event.pathParameters.id);
+                break;
+            case "PUT /quotes/{id}":
+                body = await updateQuote(event.pathParameters.id, data);
+                break;
+            case "DELETE /quotes/{id}":
+                body = await deleteQuote(event.pathParameters.id);
+                break;
             default:
                 throw new Error(`Unsupported route: "${route}"`);
         }
@@ -30,6 +39,34 @@ exports.handler = async (event, context) => {
         body = JSON.stringify(body);
     }
     return sendRes(statusCode, body)
+}
+
+async function deleteQuote(id) {
+    const params = {
+        TableName: MY_TABLE,
+        Key: { id }
+    }
+    return await dynamo.delete(params).promise().then(res => res.Attributes);
+}
+async function updateQuote(id, data) {
+    const params = {
+        TableName: MY_TABLE,
+        Key: { id },
+        UpdateExpression: "set quote = :quote, by = :by",
+        ExpressionAttributeValues: {
+            ":quote": data.quote,
+            ":by": data.by,
+        },
+        ReturnValues: "ALL_NEW"
+    }
+    return await dynamo.update(params).promise().then(res => res.Attributes);
+}
+async function getQuote(id) {
+    const params = {
+        TableName: MY_TABLE,
+        Key: { id }
+    }
+    return await dynamo.get(params).promise().then(res => res.Item);
 }
 
 async function listQuotes(){
