@@ -4,6 +4,8 @@ import {Construct} from 'constructs';
 import {Code, Function, Runtime} from "aws-cdk-lib/aws-lambda";
 import {join} from 'path';
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as s3n from "aws-cdk-lib/aws-s3-notifications";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
@@ -28,6 +30,17 @@ export class CdkThumbnailGenerationStack extends cdk.Stack {
     });
 
     s3Bucket.grantReadWrite(handler);
+
+    s3Bucket.addEventNotification(s3.EventType.OBJECT_CREATED,
+        new s3n.LambdaDestination(handler));
+
+    handler.addToRolePolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:*'],
+          resources:['*'] // s3:putObject or s3:getObject
+        })
+    )
 
   }
 }
