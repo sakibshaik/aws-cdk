@@ -4,13 +4,14 @@ phases:
     install:
       commands:
         - npm install -g npm
+        - cd pipeline
         - npm install
     build:
       commands:
         - npm run build
-        - npm run cdk --synth
+        - npm run cdk -- synth
 
 artifacts:
-  base-directory: cdk.out
+  base-directory: pipeline/cdk.out
   files:
       - '**/*'
