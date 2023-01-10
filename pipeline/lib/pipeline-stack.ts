@@ -1,7 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {Pipeline, Artifact} from "aws-cdk-lib/aws-codepipeline";
-import {CodeBuildAction, GitHubSourceAction} from "aws-cdk-lib/aws-codepipeline-actions";
+import {
+  CloudFormationCreateUpdateStackAction,
+  CodeBuildAction,
+  GitHubSourceAction
+} from "aws-cdk-lib/aws-codepipeline-actions";
 import {PipelineProject, BuildSpec, LinuxBuildImage} from "aws-cdk-lib/aws-codebuild";
 
 export class PipelineStack extends cdk.Stack {
@@ -47,6 +51,18 @@ export class PipelineStack extends cdk.Stack {
           })]
         }
     )
+
+    pipeline.addStage({
+      stageName: "PipelineUpdate",
+      actions:[
+          new CloudFormationCreateUpdateStackAction({
+            actionName: "PipelineUpdate",
+            stackName: "PipelineStack",
+            templatePath: cdkBuildOutpout.atPath('PipelineStack.template.json'),
+            adminPermissions: true,
+          })
+      ]
+    })
 
   }
 }
